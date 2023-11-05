@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 
-public class Node
+public class Node : IBinaryHeapItem<Node>
 {
     public bool Walkable;
     public Vector3 Position;
     public int GridX;
     public int GridY;
     public Node Parent;
-    
+
     public int GCost; // Distance from starting node
     public int HCost; // Distance from end node
 
@@ -20,4 +20,14 @@ public class Node
     }
 
     public int FCost => GCost + HCost; // Total cost;
+
+    public int HeapIndex { get; set; }
+
+    public int CompareTo(Node other)
+    {
+        var comparisonResult = FCost.CompareTo(other.FCost);
+        if (comparisonResult == 0)
+            comparisonResult = HCost.CompareTo(other.HCost);
+        return -comparisonResult;
+    }
 }

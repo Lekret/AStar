@@ -15,23 +15,13 @@ public class PathFinder : MonoBehaviour
     {
         var sourceNode = _grid.WorldToNode(sourcePos);
         var targetNode = _grid.WorldToNode(targetPos);
-        var openSet = new List<Node>();
+        var openSet = new BinaryHeap<Node>(_grid.NodeCount);
         var closedSet = new HashSet<Node>();
         openSet.Add(sourceNode);
 
         while (openSet.Count > 0)
         {
-            var currentNode = openSet[0];
-            for (var i = 0; i < openSet.Count; i++)
-            {
-                if (openSet[i].FCost < currentNode.FCost || 
-                    openSet[i].FCost == currentNode.FCost && openSet[i].HCost < currentNode.HCost)
-                {
-                    currentNode = openSet[i];
-                }
-            }
-
-            openSet.Remove(currentNode);
+            var currentNode = openSet.RemoveFirst();
             closedSet.Add(currentNode);
             if (currentNode == targetNode)
             {

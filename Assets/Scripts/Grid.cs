@@ -12,7 +12,8 @@ public class Grid : MonoBehaviour
     private int _gridSizeX;
     private int _gridSizeY;
     public List<Node> Path { get; set; }
-
+    public int NodeCount => _gridSizeX * _gridSizeY;
+    
     private void Awake()
     {
         if (_generateOnStart)
