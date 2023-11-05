@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Grid : MonoBehaviour
 {
+    [SerializeField] private bool _generateOnStart;
     [SerializeField] private Vector2 _gridWorldSize;
     [SerializeField] private float _nodeSize;
     [SerializeField] private LayerMask _nonWalkableMask;
@@ -9,10 +11,12 @@ public class Grid : MonoBehaviour
     private Node[,] _grid;
     private int _gridSizeX;
     private int _gridSizeY;
+    public List<Node> Path { get; set; }
 
     private void Awake()
     {
-        Generate();
+        if (_generateOnStart)
+            Generate();
     }
 
     public void Generate()
@@ -38,7 +42,7 @@ public class Grid : MonoBehaviour
                              + Vector3.forward * (y * _nodeSize + nodeHalfSize);
 
             var walkable = !Physics.CheckSphere(worldPoint, nodeHalfSize, _nonWalkableMask.value);
-            _grid[x, y] = new Node(worldPoint, walkable);
+            _grid[x, y] = new Node(worldPoint, walkable, x, y);
         }
     }
 
@@ -53,6 +57,30 @@ public class Grid : MonoBehaviour
         return _grid[x, y];
     }
 
+    public List<Node> GetNeighbours(Node node)
+    {
+        var neighbours = new List<Node>();
+
+        for (var offsetX = -1; offsetX <= 1; offsetX++)
+        for (var offsetY = -1; offsetY <= 1; offsetY++)
+        {
+            if (offsetX == 0 && offsetY == 0)
+                continue;
+
+            var checkX = node.GridX + offsetX;
+            if (checkX < 0 || checkX >= _gridSizeX)
+                continue;
+
+            var checkY = node.GridY + offsetY;
+            if (checkY < 0 || checkY >= _gridSizeY)
+                continue;
+
+            neighbours.Add(_grid[checkX, checkY]);
+        }
+
+        return neighbours;
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(transform.position, new Vector3(_gridWorldSize.x, 1f, _gridWorldSize.y));
@@ -62,7 +90,12 @@ public class Grid : MonoBehaviour
             foreach (var node in _grid)
             {
                 Gizmos.color = node.Walkable ? Color.green : Color.red;
-                Gizmos.DrawCube(node.Position, Vector3.one * (_nodeSize - 0.01f));
+                Gizmos.DrawWireCube(
+                    node.Position,
+                    new Vector3(
+                        _nodeSize - 0.01f,
+                        0.1f,
+                        _nodeSize - 0.01f));
             }
         }
     }
