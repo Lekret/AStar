@@ -11,7 +11,6 @@ public class Grid : MonoBehaviour
     private Node[,] _grid;
     private int _gridSizeX;
     private int _gridSizeY;
-    public List<Node> Path { get; set; }
     public int NodeCount => _gridSizeX * _gridSizeY;
     
     private void Awake()
@@ -58,9 +57,9 @@ public class Grid : MonoBehaviour
         return _grid[x, y];
     }
 
-    public List<Node> GetNeighbours(Node node)
+    public void GetNeighbours(List<Node> buffer, Node node)
     {
-        var neighbours = new List<Node>();
+        buffer.Clear();
 
         for (var offsetX = -1; offsetX <= 1; offsetX++)
         for (var offsetY = -1; offsetY <= 1; offsetY++)
@@ -76,10 +75,8 @@ public class Grid : MonoBehaviour
             if (checkY < 0 || checkY >= _gridSizeY)
                 continue;
 
-            neighbours.Add(_grid[checkX, checkY]);
+            buffer.Add(_grid[checkX, checkY]);
         }
-
-        return neighbours;
     }
 
     private void OnDrawGizmos()

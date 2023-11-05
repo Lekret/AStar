@@ -29,6 +29,11 @@ public class BinaryHeap<T> where T : IBinaryHeapItem<T>
         set => Resize(_capacity);
     }
 
+    public void Clear()
+    {
+        _count = 0;
+    }
+    
     public bool Contains(T item)
     {
         return Equals(_items[item.HeapIndex], item);

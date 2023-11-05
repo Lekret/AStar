@@ -1,22 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class PathFinder : MonoBehaviour
 {
     private Grid _grid;
+    private BinaryHeap<Node> _openSet;
 
     private void Awake()
     {
         _grid = GetComponent<Grid>();
     }
 
-    public void FindPath(Vector3 sourcePos, Vector3 targetPos)
+    public void FindPath(Vector3 sourcePos, Vector3 targetPos, List<Node> path)
     {
         var sourceNode = _grid.WorldToNode(sourcePos);
         var targetNode = _grid.WorldToNode(targetPos);
-        var openSet = new BinaryHeap<Node>(_grid.NodeCount);
-        var closedSet = new HashSet<Node>();
+        
+        if (_openSet == null)
+            _openSet = new BinaryHeap<Node>(_grid.NodeCount);
+        else if (_openSet.Capacity < _grid.NodeCount)
+            _openSet.Resize(_grid.NodeCount);
+        _openSet.Clear();
+        var openSet = _openSet;
+        using var closedSetHandle = HashSetPool<Node>.Get(out var closedSet);
+        using var neighboursHandle = ListPool<Node>.Get(out var neighbours);
         openSet.Add(sourceNode);
 
         while (openSet.Count > 0)
@@ -25,11 +34,11 @@ public class PathFinder : MonoBehaviour
             closedSet.Add(currentNode);
             if (currentNode == targetNode)
             {
-                RetracePath(sourceNode, targetNode);
+                RetracePath(sourceNode, targetNode, path);
                 break;
             }
 
-            var neighbours = _grid.GetNeighbours(currentNode);
+            _grid.GetNeighbours(neighbours, currentNode);
             foreach (var neighbour in neighbours)
             {
                 if (!neighbour.Walkable || closedSet.Contains(neighbour))
@@ -49,18 +58,18 @@ public class PathFinder : MonoBehaviour
         }
     }
 
-    private void RetracePath(Node sourceNode, Node targetNode)
+    private void RetracePath(Node sourceNode, Node targetNode, List<Node> path)
     {
-        var path = new List<Node>();
+        path.Clear();
+
         var currentNode = targetNode;
         while (currentNode != sourceNode)
         {
             path.Add(currentNode);
             currentNode = currentNode.Parent;
         }
-        
+
         path.Reverse();
-        _grid.Path = path;
     }
 
     private int GetDistance(Node fromNode, Node toNode)
