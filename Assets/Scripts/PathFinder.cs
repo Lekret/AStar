@@ -82,8 +82,8 @@ public class PathFinder : MonoBehaviour
     {
         if (_openSet == null)
             _openSet = new BinaryHeap<Node>(_grid.NodeCount);
-        else if (_openSet.Capacity < _grid.NodeCount)
-            _openSet.Resize(_grid.NodeCount);
+        else
+            _openSet.EnsureCapacity(_grid.NodeCount);
 
         _openSet.Clear();
         return _openSet;

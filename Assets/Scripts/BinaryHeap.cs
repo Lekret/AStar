@@ -26,7 +26,7 @@ public class BinaryHeap<T> where T : IBinaryHeapItem<T>
     public int Capacity
     {
         get => _capacity;
-        set => Resize(_capacity);
+        set => EnsureCapacity(_capacity);
     }
 
     public void Clear()
@@ -39,8 +39,11 @@ public class BinaryHeap<T> where T : IBinaryHeapItem<T>
         return item.HeapIndex < _count && Equals(_items[item.HeapIndex], item);
     }
 
-    public void Resize(int capacity)
+    public void EnsureCapacity(int capacity)
     {
+        if (capacity <= _capacity)
+            return;
+        
         _capacity = capacity;
         Array.Resize(ref _items, _capacity);
     }
@@ -54,7 +57,7 @@ public class BinaryHeap<T> where T : IBinaryHeapItem<T>
     public void Add(T item)
     {
         if (_count >= _capacity)
-            Resize(_capacity > 0 ? _capacity * 2 : 4);
+            EnsureCapacity(_capacity > 0 ? _capacity * 2 : 4);
 
         item.HeapIndex = _count;
         _items[_count] = item;
