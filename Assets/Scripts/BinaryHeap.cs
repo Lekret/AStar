@@ -36,7 +36,7 @@ public class BinaryHeap<T> where T : IBinaryHeapItem<T>
     
     public bool Contains(T item)
     {
-        return Equals(_items[item.HeapIndex], item);
+        return item.HeapIndex < _count && Equals(_items[item.HeapIndex], item);
     }
 
     public void Resize(int capacity)
