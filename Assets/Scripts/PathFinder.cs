@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -17,15 +16,9 @@ public class PathFinder : MonoBehaviour
     {
         var sourceNode = _grid.WorldToNode(sourcePos);
         var targetNode = _grid.WorldToNode(targetPos);
-        
-        if (_openSet == null)
-            _openSet = new BinaryHeap<Node>(_grid.NodeCount);
-        else if (_openSet.Capacity < _grid.NodeCount)
-            _openSet.Resize(_grid.NodeCount);
-        _openSet.Clear();
-        var openSet = _openSet;
-        using var closedSetHandle = HashSetPool<Node>.Get(out var closedSet);
-        using var neighboursHandle = ListPool<Node>.Get(out var neighbours);
+        var openSet = GetOpenSet();
+        var closedSet = HashSetPool<Node>.Get();
+        var neighbours = ListPool<Node>.Get();
         openSet.Add(sourceNode);
 
         while (openSet.Count > 0)
@@ -56,6 +49,9 @@ public class PathFinder : MonoBehaviour
                 }
             }
         }
+        
+        HashSetPool<Node>.Release(closedSet);
+        ListPool<Node>.Release(neighbours);
     }
 
     private void RetracePath(Node sourceNode, Node targetNode, List<Node> path)
@@ -80,5 +76,16 @@ public class PathFinder : MonoBehaviour
         if (distX > distY)
             return 14 * distY + 10 * (distX - distY);
         return 14 * distX + 10 * (distY - distX);
+    }
+
+    private BinaryHeap<Node> GetOpenSet()
+    {
+        if (_openSet == null)
+            _openSet = new BinaryHeap<Node>(_grid.NodeCount);
+        else if (_openSet.Capacity < _grid.NodeCount)
+            _openSet.Resize(_grid.NodeCount);
+
+        _openSet.Clear();
+        return _openSet;
     }
 }
