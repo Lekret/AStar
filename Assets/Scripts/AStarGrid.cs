@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class AStarGrid : MonoBehaviour
 {
     [SerializeField] private bool _generateOnStart;
+    [SerializeField] private Vector3 _offset;
     [SerializeField] private Vector2 _gridWorldSize;
     [SerializeField] private float _nodeSize;
     [SerializeField] private LayerMask _nonWalkableMask;
@@ -12,7 +14,7 @@ public class AStarGrid : MonoBehaviour
     private int _gridSizeX;
     private int _gridSizeY;
     public int NodeCount => _gridSizeX * _gridSizeY;
-    
+
     private void Awake()
     {
         if (_generateOnStart)
@@ -30,6 +32,7 @@ public class AStarGrid : MonoBehaviour
     {
         _grid = new AStarNode[_gridSizeX, _gridSizeY];
         var bottomLeft = transform.position
+                         + _offset
                          - Vector3.right * _gridWorldSize.x / 2f
                          - Vector3.forward * _gridWorldSize.y / 2f;
 
@@ -48,6 +51,7 @@ public class AStarGrid : MonoBehaviour
 
     public AStarNode WorldToNode(Vector3 worldPosition)
     {
+        worldPosition -= _offset;
         var percentX = (worldPosition.x + _gridWorldSize.x / 2f) / _gridWorldSize.x;
         var percentY = (worldPosition.z + _gridWorldSize.y / 2f) / _gridWorldSize.y;
         percentX = Mathf.Clamp01(percentX);
@@ -79,9 +83,32 @@ public class AStarGrid : MonoBehaviour
         }
     }
 
+    // TODO Optimize
+    public bool SampleNode(Vector3 sourcePosition, out AStarNode node, float maxDistance, Predicate<AStarNode> filter)
+    {
+        node = null;
+        var minDistSqr = Mathf.Infinity;
+        var maxDistSqr = maxDistance * maxDistance;
+        
+        foreach (var testNode in _grid)
+        {
+            if (!filter(testNode))
+                continue;
+            
+            var distSqr = (sourcePosition - testNode.Position).sqrMagnitude;
+            if (distSqr < minDistSqr && distSqr <= maxDistSqr)
+            {
+                minDistSqr = distSqr;
+                node = testNode;
+            }
+        }
+
+        return node != null;
+    }
+
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireCube(transform.position, new Vector3(_gridWorldSize.x, 1f, _gridWorldSize.y));
+        Gizmos.DrawWireCube(transform.position + _offset, new Vector3(_gridWorldSize.x, 1f, _gridWorldSize.y));
 
         if (_grid != null)
         {
