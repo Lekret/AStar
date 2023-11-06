@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class Grid : MonoBehaviour
+public class AStarGrid : MonoBehaviour
 {
     [SerializeField] private bool _generateOnStart;
     [SerializeField] private Vector2 _gridWorldSize;
     [SerializeField] private float _nodeSize;
     [SerializeField] private LayerMask _nonWalkableMask;
 
-    private Node[,] _grid;
+    private AStarNode[,] _grid;
     private int _gridSizeX;
     private int _gridSizeY;
     public int NodeCount => _gridSizeX * _gridSizeY;
@@ -28,7 +28,7 @@ public class Grid : MonoBehaviour
 
     private void FillGrid()
     {
-        _grid = new Node[_gridSizeX, _gridSizeY];
+        _grid = new AStarNode[_gridSizeX, _gridSizeY];
         var bottomLeft = transform.position
                          - Vector3.right * _gridWorldSize.x / 2f
                          - Vector3.forward * _gridWorldSize.y / 2f;
@@ -42,11 +42,11 @@ public class Grid : MonoBehaviour
                              + Vector3.forward * (y * _nodeSize + nodeHalfSize);
 
             var walkable = !Physics.CheckSphere(worldPoint, nodeHalfSize, _nonWalkableMask.value);
-            _grid[x, y] = new Node(worldPoint, walkable, x, y);
+            _grid[x, y] = new AStarNode(worldPoint, walkable, x, y);
         }
     }
 
-    public Node WorldToNode(Vector3 worldPosition)
+    public AStarNode WorldToNode(Vector3 worldPosition)
     {
         var percentX = (worldPosition.x + _gridWorldSize.x / 2f) / _gridWorldSize.x;
         var percentY = (worldPosition.z + _gridWorldSize.y / 2f) / _gridWorldSize.y;
@@ -57,7 +57,7 @@ public class Grid : MonoBehaviour
         return _grid[x, y];
     }
 
-    public void GetNeighbours(List<Node> buffer, Node node)
+    public void GetNeighbours(List<AStarNode> buffer, AStarNode node)
     {
         buffer.Clear();
 

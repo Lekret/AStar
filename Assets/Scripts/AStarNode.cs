@@ -1,17 +1,17 @@
 ﻿using UnityEngine;
 
-public class Node : IBinaryHeapItem<Node>
+public class AStarNode : IBinaryHeapItem<AStarNode>
 {
     public bool Walkable;
     public Vector3 Position;
     public int GridX;
     public int GridY;
-    public Node Parent;
+    public AStarNode Parent;
 
     public int GCost; // Distance from starting node
     public int HCost; // Distance from end node
 
-    public Node(Vector3 position, bool walkable, int gridX, int gridY)
+    public AStarNode(Vector3 position, bool walkable, int gridX, int gridY)
     {
         Position = position;
         Walkable = walkable;
@@ -23,7 +23,7 @@ public class Node : IBinaryHeapItem<Node>
 
     public int HeapIndex { get; set; }
 
-    public int CompareTo(Node other)
+    public int CompareTo(AStarNode other)
     {
         var comparisonResult = FCost.CompareTo(other.FCost);
         if (comparisonResult == 0)

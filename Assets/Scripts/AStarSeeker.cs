@@ -1,18 +1,18 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class Agent : MonoBehaviour
+public class AStarSeeker : MonoBehaviour
 {
     [SerializeField] private Transform _target;
     
-    private Grid _grid;
-    private PathFinder _pathFinder;
-    private readonly List<Node> _path = new();
+    private AStarGrid _grid;
+    private AStarPathFinder _pathFinder;
+    private readonly List<AStarNode> _path = new();
 
     private void Awake()
     {
-        _grid = FindObjectOfType<Grid>();
-        _pathFinder = FindObjectOfType<PathFinder>();
+        _grid = FindObjectOfType<AStarGrid>();
+        _pathFinder = FindObjectOfType<AStarPathFinder>();
     }
 
     private void Update()

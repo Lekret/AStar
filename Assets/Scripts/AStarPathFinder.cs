@@ -2,23 +2,23 @@
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class PathFinder : MonoBehaviour
+public class AStarPathFinder : MonoBehaviour
 {
-    private Grid _grid;
-    private BinaryHeap<Node> _openSet;
+    private AStarGrid _grid;
+    private BinaryHeap<AStarNode> _openSet;
 
     private void Awake()
     {
-        _grid = GetComponent<Grid>();
+        _grid = GetComponent<AStarGrid>();
     }
 
-    public void FindPath(Vector3 sourcePos, Vector3 targetPos, List<Node> path)
+    public void FindPath(Vector3 sourcePos, Vector3 targetPos, List<AStarNode> path)
     {
         var sourceNode = _grid.WorldToNode(sourcePos);
         var targetNode = _grid.WorldToNode(targetPos);
         var openSet = GetOpenSet();
-        var closedSet = HashSetPool<Node>.Get();
-        var neighbours = ListPool<Node>.Get();
+        var closedSet = HashSetPool<AStarNode>.Get();
+        var neighbours = ListPool<AStarNode>.Get();
         openSet.Add(sourceNode);
 
         while (openSet.Count > 0)
@@ -50,11 +50,11 @@ public class PathFinder : MonoBehaviour
             }
         }
         
-        HashSetPool<Node>.Release(closedSet);
-        ListPool<Node>.Release(neighbours);
+        HashSetPool<AStarNode>.Release(closedSet);
+        ListPool<AStarNode>.Release(neighbours);
     }
 
-    private void RetracePath(Node sourceNode, Node targetNode, List<Node> path)
+    private void RetracePath(AStarNode sourceNode, AStarNode targetNode, List<AStarNode> path)
     {
         path.Clear();
 
@@ -68,7 +68,7 @@ public class PathFinder : MonoBehaviour
         path.Reverse();
     }
 
-    private int GetDistance(Node fromNode, Node toNode)
+    private int GetDistance(AStarNode fromNode, AStarNode toNode)
     {
         var distX = Mathf.Abs(fromNode.GridX - toNode.GridX);
         var distY = Mathf.Abs(fromNode.GridY - toNode.GridY);
@@ -78,10 +78,10 @@ public class PathFinder : MonoBehaviour
         return 14 * distX + 10 * (distY - distX);
     }
 
-    private BinaryHeap<Node> GetOpenSet()
+    private BinaryHeap<AStarNode> GetOpenSet()
     {
         if (_openSet == null)
-            _openSet = new BinaryHeap<Node>(_grid.NodeCount);
+            _openSet = new BinaryHeap<AStarNode>(_grid.NodeCount);
         else
             _openSet.EnsureCapacity(_grid.NodeCount);
 
